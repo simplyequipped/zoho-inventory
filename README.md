@@ -15,19 +15,19 @@ Usable from a terminal or from scripts and agents on the same box.
 
 ## Install
 
-Python 3.11+. No pipx needed.
+Python 3.11+.
 
 ```bash
 git clone https://github.com/simplyequipped/zoho-inventory.git
 cd zoho-inventory
-python3 -m venv .venv
-.venv/bin/pip install -e .
-ln -s "$PWD/.venv/bin/zoho" ~/.local/bin/zoho      # or add .venv/bin to PATH
+pip install -e .
 ```
 
-For development add the test deps: `.venv/bin/pip install -e ".[dev]"`.
+Debian and Ubuntu block pip installs outside a venv; add `--break-system-packages`
+there. The `zoho` entry point lands wherever pip puts scripts (`~/.local/bin` for a
+user install). For the test deps: `pip install -e ".[dev]"`.
 
-To update later: `git pull` (editable install picks it up).
+To update later: `git pull`. The editable install picks it up.
 
 ## One-time setup
 
@@ -124,7 +124,7 @@ docs/reference.md
 ## Tests
 
 ```bash
-.venv/bin/pytest
+pytest
 ```
 
 All tests are offline. A live smoke test against your org is a manual step
