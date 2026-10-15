@@ -1,11 +1,13 @@
 ---
 name: zoho-inventory
-description: Use the `zoho` CLI to read and change Zoho Inventory (items, composite items, stock) from this machine. Use when asked about stock, parts, costs, SKUs, assemblies, or anything in Zoho Inventory.
+description: Use the `zoho` CLI to read and change Zoho Inventory (items, composite items, stock, orders) from this machine. Use when asked about stock, parts, costs, SKUs, assemblies, orders, or anything in Zoho Inventory.
 ---
 
 # zoho-inventory
 
 `zoho` is installed on this box and already authenticated. Do not ask for credentials.
+Run `zoho docs` for the module list and `zoho docs <module>` or `zoho <module> --help`
+for details. docs/reference.md in the repo has the same content.
 
 ## Rules
 
@@ -15,23 +17,22 @@ description: Use the `zoho` CLI to read and change Zoho Inventory (items, compos
 - Deletes need `--yes`. Prefer `deactivate` over `delete`.
 - SKU matching is exact. If a SKU is not found, list with `--sku-contains` and ask.
 - Do not loop over many items with one call each when a list call will do.
+  The daily request budget is shared with everything else on the box.
 - Never call the Zoho API directly with curl. Everything goes through `zoho`.
+- `composite assemble` changes stock. Confirm the quantity with the user before running it.
 
 ## Commands
 
 ```
-zoho items list [--sku X | --sku-contains X | --name-contains X | --search X] [--status active]
-zoho items get <id|sku>
-zoho items create --name N --sku S --purchase-rate R [--rate R] [--unit pcs] [--json file]
-zoho items update <id|sku> [--purchase-rate R] [--rate R] [--name N] [--json file]
-zoho items activate|deactivate <id|sku>
+zoho items list|get|create|update|activate|deactivate|delete
+zoho composite list|get|parts|create|update|assemble|bundles|bundle|unassemble
+zoho adjustments list|get|create|delete
+zoho salesorders|purchaseorders|purchasereceives|contacts|itemgroups|locations|
+     packages|shipmentorders|invoices|bills|pricelists|users  list|get|create|update|delete|do|fields
 zoho org list
 zoho auth status
 zoho api GET|POST|PUT|DELETE <path> [--param k=v] [--json file | --data '{...}'] [--all]
 ```
-
-Endpoints without a typed command go through `zoho api`. Paths are relative to
-`/inventory/v1`; see https://www.zoho.com/inventory/api/v1/ for request bodies.
 
 ## Field names
 
@@ -39,8 +40,10 @@ Zoho field names are used as-is. The ones that matter here:
 
 - `sku` is what the Shopify sync matches on. Do not change it on synced items.
 - `purchase_rate` is cost. `rate` is selling price.
-- `stock_on_hand`, `available_stock` are read-only on items; change stock with
-  an inventory adjustment or by assembling a composite item.
+- `stock_on_hand` and `available_stock` are read-only; change stock with
+  `adjustments create` (corrections) or `composite assemble` (building product).
+- A composite item's `mapped_items` is the parts list; `--part SKU:QTY` on
+  `composite update` replaces the whole list.
 
 ## Exit codes
 

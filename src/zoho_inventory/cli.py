@@ -81,12 +81,21 @@ def run():
 
 
 # command groups
-from .commands import auth as _auth, api as _api, items as _items, organizations as _org  # noqa: E402
+from .commands import (  # noqa: E402
+    auth as _auth, api as _api, items as _items, organizations as _org,
+    composite as _composite, adjustments as _adjustments, docs as _docs, generic as _generic,
+)
+from .modules import MODULES  # noqa: E402
 
 app.add_typer(_auth.app, name="auth")
 app.add_typer(_org.app, name="org")
 app.add_typer(_items.app, name="items")
+app.add_typer(_composite.app, name="composite")
+app.add_typer(_adjustments.app, name="adjustments")
+for _name, _m in MODULES.items():
+    app.add_typer(_generic.build(_m), name=_name)
 app.command("api", help=_api.__doc__)(_api.api)
+app.command("docs", help=_docs.__doc__)(_docs.docs)
 
 if __name__ == "__main__":
     run()

@@ -21,11 +21,10 @@ def default_format() -> str:
 
 def emit(rows: Iterable[dict] | dict, fmt: str | None = None, columns: list[str] | None = None) -> None:
     fmt = fmt or default_format()
-    if isinstance(rows, dict):
-        rows = [rows]
-    rows = list(rows)
+    single = isinstance(rows, dict)
+    rows = [rows] if single else list(rows)
     if fmt == "json":
-        print(json.dumps(rows if len(rows) != 1 else rows[0], indent=2, default=str))
+        print(json.dumps(rows[0] if single else rows, indent=2, default=str))
         return
     if not rows:
         print("(no results)", file=sys.stderr)
